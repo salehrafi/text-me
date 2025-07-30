@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>This is Main html by rafi</title>
+    <link rel="stylesheet" href="main.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCIlQBKQf7557DTOLjZL-epSAp9koZHzZM",
+            authDomain: "ngl-genx2.firebaseapp.com",
+            projectId: "ngl-genx2",
+            storageBucket: "ngl-genx2.firebasestorage.app",
+            messagingSenderId: "422313856663",
+            appId: "1:422313856663:web:8179163ec23f82485763d2",
+            measurementId: "G-M3RVJN9ZNS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        document.getElementById("messageForm").addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            try {
+                await addDoc(collection(db, 'message'), {
+                    name,
+                    email,
+                    message,
+                    timestamp: serverTimestamp()
+                });
+
+                alert('Message is sent!');
+                document.getElementById("messageForm").reset();
+            } catch (error) {
+                console.error("Error:", error);
+                alert('Error sending message.');
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <h2>মেসেজ পাঠান - ngl-genx2</h2>
+    <form id="messageForm">
+        <label for="name">আপনার নাম-</label>
+        <input type="text" id="name" required>
+
+        <label for="email">ইমেইল-</label>
+        <input type="email" id="email" required>
+
+        <label for="message">আপনার মেসেজ লিখুন-</label>
+        <textarea id="message" rows="6" required></textarea>
+
+        <button type="submit">Send</button>
+    </form>
+</body>
+
+</html>
