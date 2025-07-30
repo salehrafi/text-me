@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>This is Main html by rafi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sent a secret message</title>
     <link rel="stylesheet" href="style/style.css">
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 
+    <script>
+        // firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyCIlQBKQf7557DTOLjZL-epSAp9koZHzZM",
             authDomain: "ngl-genx2.firebaseapp.com",
@@ -22,36 +23,14 @@
             measurementId: "G-M3RVJN9ZNS"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const db = getFirestore(app);
-
-        document.getElementById("messageForm").addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const message = document.getElementById('message').value.trim();
-
-            try {
-                await addDoc(collection(db, 'message'), {
-                    name,
-                    email,
-                    message,
-                    timestamp: serverTimestamp()
-                });
-
-                alert('Message is sent!');
-                document.getElementById("messageForm").reset();
-            } catch (error) {
-                console.error("Error:", error);
-                alert('Error sending message.');
-            }
-        });
+        // Firebase initialization
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
     </script>
 </head>
 
 <body>
+
     <h2>মেসেজ পাঠান - ngl-genx2</h2>
     <form id="messageForm">
         <label for="name">আপনার নাম-</label>
@@ -63,8 +42,67 @@
         <label for="message">আপনার মেসেজ লিখুন-</label>
         <textarea id="message" rows="6" required></textarea>
 
-        <button type="submit">Send</button>
+        <button type="submit">পাঠান</button>
     </form>
+
+    <!-- Custom Alert Box -->
+    <div id="customAlert"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:9999;">
+        <div
+            style="background:#fff; padding:25px 20px; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.2); text-align:center; max-width:90%; width:300px; position:relative;">
+            <h3 id="alertTitle" style="margin-top:0; color:#28a745;">সফল</h3>
+            <p id="alertMessage" style="font-size:16px; color:#444;">আপনার মেসেজ পাঠানো হয়েছে!!</p>
+            <button onclick="hideCustomAlert()"
+                style="margin-top:15px; padding:8px 18px; background-color:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;">Done</button>
+            <span onclick="hideCustomAlert()"
+                style="position:absolute; top:8px; right:12px; font-size:20px; cursor:pointer;">&times;</span>
+        </div>
+    </div>
+
+
+    <!-- Form Submit Script -->
+    <script>
+        document.getElementById("messageForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            if (!name || !email || !message) {
+                showCustomAlert("Fill all blanks", "#ffc107");
+                return;
+            }
+
+            db.collection("messages").add({
+                name: name,
+                email: email,
+                message: message,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showCustomAlert("Success!!", "Your Message is sent!!");
+                document.getElementById("messageForm").reset();
+            }).catch((error) => {
+                console.error("Error:", error);
+                showCustomAlert("Error!!", "Not working!");
+            });
+        });
+
+        function showCustomAlert(title, message, color) {
+            document.getElementById("alertTitle").innerText = title;
+            document.getElementById("alertTitle").style.color = color;
+            document.getElementById("alertMessage").innerText = message;
+            document.getElementById("customAlert").style.display = "flex";
+        }
+
+        function hideCustomAlert() {
+            document.getElementById("customAlert").style.display = "none";
+        }
+    </script>
+
+    <footer>
+        <i>developd by Rafi - 2025</i>
+    </footer>
 </body>
 
 </html>
